@@ -59,6 +59,22 @@ class Play extends Phaser.Scene {
         this.physics.add.collider(this.enemies, this.enemies);
         this.physics.add.collider(this.enemies, this.bulletsPlayer, this.bulletHitEnemy, null, this);
         this.physics.add.collider(this.bulletsEnemies, this.user, this.bulletHitUser, null, this);
+        this.physics.add.overlap(this.healing, this.user, this.userHeal, null, this);
+
+
+        this.scoreText = this.add.text(0, 0, '', { fontSize: '32px', fontFamily: 'IMPACT', fill: '#ffffff' });
+        this.scoreText.setAlign('left')
+        this.scoreText.setOrigin(0, 7);
+        this.murderText = this.add.text(0, 0, '', { fontSize: '32px', fontFamily: 'IMPACT', fill: '#ffffff' });
+        this.murderText.setAlign('center')
+        this.murderText.setOrigin(0.5, 0);
+        this.murderText.setAlpha(0);
+
+        this.diedText = this.add.text(0, 0, 'YOU DIED\nPress enter to restart', { fontSize: '64px', fontFamily: 'IMPACT', fill: '#ffffff' });
+        this.diedText.setAlign('center')
+        this.diedText.setOrigin(0.5, 0);
+        this.diedText.setAlpha(0);
+
 
         this.input.on('pointerdown', (pointer) => {
             if (this.userHp > 1) {
@@ -74,8 +90,25 @@ class Play extends Phaser.Scene {
         });
     }
 
+    userHeal(heal, user) {
+        this.sound.add('heal').play({ volume: 1 });
+        if (this.userHp < 100) {
+            this.userHp = 100;
+        }
+        heal.body.destroy();
+        this.healing.remove(heal)
+        heal.setActive(false);
+        heal.setVisible(false);
+    }
+
     update() {
+        const cam = this.cameras.main
         this.userMovement();
+        this.murderText.setAlpha(this.murderText.alpha - 0.01);
+        this.lastKill++;
+        if (this.lastKill > 250) {
+            this.murderCombo = 0;
+        }
         //delete bullets out of map
         this.bulletsPlayer.children.each(bullet => {
             if (Phaser.Math.Distance.Between(bullet.x, bullet.y, this.user.x, this.user.y) > 600) {
@@ -133,6 +166,42 @@ class Play extends Phaser.Scene {
             this.enemies.add(this.physics.add.sprite(randomH, randomV, 'enemy'));
             console.log("spawned at" + randomH + ", " + randomV)
         }
+        this.scoreText.setText([`Kills: ${this.kills}`, `Score: ${this.score}`]);
+        this.murderText.setText(['MURDER COMBO: ' + this.murderCombo]);
+        this.murderText.x = cam.scrollX + this.scale.width / 2;
+        this.murderText.y = cam.scrollY + this.scale.height / 3;
+
+        this.diedText.x = cam.scrollX + this.scale.width / 2;
+        this.diedText.y = cam.scrollY + this.scale.height / 6;
+
+        this.scoreText.x = cam.scrollX + 50;
+        this.scoreText.y = cam.scrollY + 500;
+        this.comboTimer++;
+        if (this.comboTimer < 250) {
+            if (this.comboNumber >= 2 && this.newCombo) {
+                this.newCombo = false;
+                this.comboTimer = 0;
+                if (this.comboNumber < 11) {
+                    console.log(`playing combo-${this.comboNumber}`)
+                    this.sound.add(`combo-${this.comboNumber}`).play({ volume: 5 });
+                } else if (this.comboNumber >= 11 && !this.saidWow) {
+                    this.saidWow = true;
+                    this.sound.add(`combo-${this.comboNumber}`).play({ volume: 10 });
+                }
+            }
+        } else {
+            this.saidWow = false;
+            this.comboTimer = 0;
+            this.comboNumber = 0;
+        }
+        // Check enter keypress after loss
+        if (this.gameLost && this.input.keyboard.checkDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER))) {
+            // Reset the scene and physics
+            this.kills = 0;
+            this.score = 0;
+            this.scene.restart();
+            this.gameLost = false;
+        }
     }
 
     /** move user using the arrow keys **/
@@ -172,18 +241,18 @@ class Play extends Phaser.Scene {
         if (enemy.hp < 1) {
             let soundDist = Phaser.Math.Distance.Between(this.user.x, this.user.y, enemy.x, enemy.y)
             soundDist = (((Phaser.Math.Clamp(soundDist / 700, 0, 1)) - 1) * -1);
-            // this.murderText.setAlpha(1);
+            this.sound.add('scream').play({ volume: soundDist });
+            this.murderText.setAlpha(1);
             this.murderCombo++;
             this.comboNumber++;
             this.score += this.murderCombo;
             this.kills++;
             this.lastKill = 0;
-            this.sound.add('scream').play({ volume: soundDist });
-            // let random = Phaser.Math.Between(0, 100);
-            // if (random < 50) {
-            //     let heal = this.physics.add.sprite(enemy.x, enemy.y, "heart");
-            //     this.healing.add(heal);
-            // }
+            let random = Phaser.Math.Between(0, 100);
+            if (random < 50) {
+                let heal = this.physics.add.sprite(enemy.x, enemy.y, "heart");
+                this.healing.add(heal);
+            }
             enemy.body.destroy();
             this.newCombo = true;
             this.enemies.remove(enemy)
@@ -201,7 +270,7 @@ class Play extends Phaser.Scene {
         bullet.setVisible(false);
         if (this.userHp < 1) {
             this.gameLost = true;
-            // this.diedText.setAlpha(1);
+            this.diedText.setAlpha(1);
             this.sound.add('scream').play({ volume: 1 });
             user.body.destroy();
             user.setActive(false);
