@@ -73,15 +73,35 @@ class Play extends Phaser.Scene {
             .setAlpha(0);
 
         this.input.on('pointerdown', (pointer) => {
-            if (this.userHp > 1) {
-                this.sound.add('shoot').play({ volume: 1 });
-                let bullet = this.physics.add.sprite(this.user.x, this.user.y, "bullet");
-                bullet.setVelocity(Math.cos(Phaser.Math.DegToRad(this.user.angle)) * 200, Math.sin(Phaser.Math.DegToRad(this.user.angle)) * 200);
-                bullet.setTint(0x00ff00);
-                bullet.angle = this.user.body.rotation + 90;
-                this.bulletsPlayer.add(bullet);
-            }
+            this.userShoot();
         });
+        this.input.keyboard.on('keydown-SPACE', () => {
+            this.userShoot();
+        });
+        this.rect = new Phaser.Geom.Rectangle(100, 100, 200, 5);
+        this.graphics = this.add.graphics();
+        this.graphics.fillStyle(0x00ff00, 1);
+    }
+
+    userShoot() {
+        if (this.userHp > 1) {
+            this.sound.add('shoot').play({ volume: 1 });
+            let bullet = this.physics.add.sprite(this.user.x, this.user.y, "bullet");
+            bullet.setVelocity(Math.cos(Phaser.Math.DegToRad(this.user.angle)) * 200, Math.sin(Phaser.Math.DegToRad(this.user.angle)) * 200);
+            bullet.setTint(0x00ff00);
+            bullet.angle = this.user.body.rotation + 90;
+            this.bulletsPlayer.add(bullet);
+        }
+    }
+
+    healthBar() {
+        const width = Phaser.Math.Clamp((this.userHp / 100) * 50, 0, 50);
+        this.rect.setPosition(this.cameras.main.scrollX + this.scale.width / 2 - this.rect.width / 2, this.scale.height / 2 + this.cameras.main.scrollY + 20);
+        this.rect.width = width;
+        this.graphics.clear();
+
+        this.graphics.fillStyle(0x00ff00, 1);
+        this.graphics.fillRectShape(this.rect);
     }
 
     userHeal(heal, user) {
@@ -94,11 +114,11 @@ class Play extends Phaser.Scene {
     }
 
     update() {
-        const cam = this.cameras.main;
         this.userMovement();
         this.bulletShootDelete();
         this.spawnEnemies();
-        this.textAndCombos(cam);
+        this.textAndCombos(this.cameras.main);
+        this.healthBar();
         // Check enter keypress after loss / Reset the scene and physics
         if (this.gameLost && this.input.keyboard.checkDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER))) {
             this.score = this.kills = 0;
@@ -256,8 +276,11 @@ class Play extends Phaser.Scene {
         this.sound.add('impact').play({ volume: 1 });
 
         if (enemy.hp < 1) {
+            this.murderText.setAlpha(1);
             this.killCombo++;
             this.comboNumber++;
+            this.score += this.killCombo;
+            this.kills++;
             this.killTimer = 0;
             this.sound.add('scream').play({ volume: 1 });
             this.enemies.remove(enemy)
