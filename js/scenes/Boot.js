@@ -1,5 +1,6 @@
+/** initializes the loading of assets for the war game and starts it once ready. */
 class Boot extends Phaser.Scene {
-
+    /** allows the initialization of the asset loading for the war game */
     constructor() {
         super({
             key: `boot`

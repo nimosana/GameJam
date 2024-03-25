@@ -1,3 +1,4 @@
-# Template p5 project
+# WAR GAME
+## Nicolas Morales-Sanabria
 
-This is the README file for the entire project. For more official projects you should write information here about the nature of the project, your name, any special explanations of how the project works, etc.
+Tank game using the Phaser 3 library, the user controls a tank through the arrow keys, shooting with SPACE/Click. The user kills endlessly increasing amounts of enemies, trying to survive. Combo mechanics and voices keep track of killstreaks and the player gets more points by having larger combos. The game contains sound effects and a combo announcer for an epic fighting experience.

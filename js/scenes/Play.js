@@ -1,3 +1,4 @@
+/** Creates the scene for the war game and every element it contains, run after Boot */
 class Play extends Phaser.Scene {
     /** allows the creation of a scene for the war game, initializing it with required params */
     constructor() {
@@ -17,6 +18,7 @@ class Play extends Phaser.Scene {
         this.gameLost = false;
     }
 
+    /** Creates the initial scene and elements for the war game */
     create() {
         // interaction setup
         this.cursors = this.input.keyboard.createCursorKeys();
