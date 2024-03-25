@@ -9,6 +9,9 @@
 
 "use strict";
 //phaser config
+setInterval(moveBackground, 50);
+let backgroundPos = 0;
+
 let config = {
     type: Phaser.AUTO,
     width: 900,
@@ -22,3 +25,9 @@ let config = {
 };
 
 let game = new Phaser.Game(config);
+
+/** move the background of the html site */
+function moveBackground() {
+    backgroundPos++;
+    document.getElementById("body").style.backgroundPosition = `${backgroundPos}px ${backgroundPos}px`;
+}

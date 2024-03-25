@@ -12,9 +12,44 @@ Also hides overflow.
 body {
   padding: 0;
   margin: 0;
-  display: grid; /* Set up the grid and justify/align to center */
+  display: grid;
+  /* Set up the grid and justify/align to center */
   justify-content: center;
   align-content: center;
-  height: 100vh; /* Body is the height of the viewport */
-  overflow: hidden; /* Hide anything that goes off the window size */
+  height: 100vh;
+  /* Body is the height of the viewport */
+  overflow: hidden;
+  /* Hide anything that goes off the window size */
+}
+
+body {
+  justify-content: center;
+  background-image: url('../assets/images/nimosana_darker.gif');
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 68px;
+  background-position: top left;
+  background-attachment: fixed;
+  background-color: rgb(62, 47, 47);
+  color: #ff0000;
+  /* display: flex; */
+  /* flex-direction: column; */
+  justify-content: center;
+  align-content: center;
+  /*auto center my stuffs*/
+  margin: auto;
+  max-width: auto;
+  overflow: hidden;
+  /*SCROLL LETSGO */
+  /* overflow-x: auto;
+  overflow-y: auto; */
+  /*text related*/
+  /* cursor: url('../../resources/cursor.png'), auto; */
+  font-family: Verdana,
+    Geneva,
+    Tahoma,
+    sans-serif;
+  text-align: center;
+  line-height: 1.69;
+  padding: 0px 0px;
 }
