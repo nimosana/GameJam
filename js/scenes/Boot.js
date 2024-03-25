@@ -5,7 +5,7 @@ class Boot extends Phaser.Scene {
             key: `boot`
         });
     }
-
+    //loads required assets for the game
     preload() {
         let comboSounds = 11;
         this.load.image(`user`, `assets/images/tankPlayer.png`);

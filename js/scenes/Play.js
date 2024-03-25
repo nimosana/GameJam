@@ -1,5 +1,5 @@
 class Play extends Phaser.Scene {
-
+    /** allows the creation of a scene for the war game, initializing it with required params */
     constructor() {
         super({
             key: `play`
@@ -59,7 +59,7 @@ class Play extends Phaser.Scene {
         this.physics.add.collider(this.enemies, this.bulletsPlayer, this.bulletHitEnemy, null, this);
         this.physics.add.collider(this.bulletsEnemies, this.user, this.bulletHitUser, null, this);
         this.physics.add.overlap(this.healing, this.user, this.userHeal, null, this);
-
+        // add and set text objects
         this.scoreText = this.add.text(0, 0, '', { fontSize: '32px', fontFamily: 'IMPACT', fill: '#ffffff' })
             .setAlign('left')
             .setOrigin(0, 7);
@@ -71,7 +71,7 @@ class Play extends Phaser.Scene {
             .setAlign('center')
             .setOrigin(0.5, 0)
             .setAlpha(0);
-
+        //user shoot inputs
         this.input.on('pointerdown', (pointer) => {
             this.userShoot();
         });
@@ -83,6 +83,7 @@ class Play extends Phaser.Scene {
         this.graphics.fillStyle(0x00ff00, 1);
     }
 
+    /** makes the user shoot bullet */
     userShoot() {
         if (this.userHp > 1) {
             this.sound.add('shoot').play({ volume: 1 });
@@ -94,16 +95,17 @@ class Play extends Phaser.Scene {
         }
     }
 
+    /** displays the user's health bar */
     healthBar() {
         const width = Phaser.Math.Clamp((this.userHp / 100) * 50, 0, 50);
         this.rect.setPosition(this.cameras.main.scrollX + this.scale.width / 2 - this.rect.width / 2, this.scale.height / 2 + this.cameras.main.scrollY + 20);
         this.rect.width = width;
         this.graphics.clear();
-
         this.graphics.fillStyle(0x00ff00, 1);
         this.graphics.fillRectShape(this.rect);
     }
 
+    /** heals the player when picking up a heart */
     userHeal(heal, user) {
         this.sound.add('heal').play({ volume: 1 });
         if (this.userHp < 100) {
@@ -113,6 +115,7 @@ class Play extends Phaser.Scene {
         this.removeObj(heal);
     }
 
+    /** Updates the scene/game */
     update() {
         this.userMovement();
         this.bulletShootDelete();
@@ -127,6 +130,7 @@ class Play extends Phaser.Scene {
         }
     }
 
+    /** spawns an enemy in a random corner */
     spawnEnemies() {
         if (this.enemies.getLength() < this.kills || this.firstSpawn) {
             this.firstSpawn = false;
@@ -141,6 +145,7 @@ class Play extends Phaser.Scene {
         }
     }
 
+    /** displays scores and combos keeping track of them */
     textAndCombos(cam) {
         this.killTimer++;
         if (this.killTimer > 250) {
@@ -199,6 +204,7 @@ class Play extends Phaser.Scene {
         this.user.setVelocity(body.velocity.x / 1.05, body.velocity.y / 1.05); // lower speed always
     }
 
+    /** removes bullet and hurts/kills enemies when colliding with a user bullet */
     bulletHitEnemy(bullet, enemy) {
         enemy.hp -= 50;
         this.bulletsPlayer.remove(bullet);
@@ -225,6 +231,7 @@ class Play extends Phaser.Scene {
         }
     }
 
+    /** removes bullet and hurts/kills user when colliding with a enemy bullet */
     bulletHitUser(bullet, user) {
         this.userHp -= 10;
         console.log(this.userHp)
@@ -239,6 +246,7 @@ class Play extends Phaser.Scene {
         }
     }
 
+    /** removes bullets out of bounds, moves and makes enemies shoot at random */
     bulletShootDelete() {
         this.bulletsPlayer.children.each(bullet => {
             if (Phaser.Math.Distance.Between(bullet.x, bullet.y, this.user.x, this.user.y) > 600) {
@@ -271,6 +279,7 @@ class Play extends Phaser.Scene {
         });
     }
 
+    /** plays sound and hurts enemies when colliding with user */
     tanksTouched(user, enemy) {
         enemy.hp -= 50;
         this.sound.add('impact').play({ volume: 1 });
@@ -289,6 +298,7 @@ class Play extends Phaser.Scene {
         }
     }
 
+    /** removes an object from the physics engine */
     removeObj(obj) {
         obj.body.destroy();
         obj.setActive(false);
